@@ -29,13 +29,11 @@ for (let i = 0; i < 200; i++) {
   squares.push(girdDiv);
 }
 for (let i = 0; i < 10; i++) {
-    let girdDiv = document.createElement("div");
-    girdDiv.classList = "taken";
-    grid.appendChild(girdDiv);
-    squares.push(girdDiv);
-  }
-
-
+  let girdDiv = document.createElement("div");
+  girdDiv.classList = "taken";
+  grid.appendChild(girdDiv);
+  squares.push(girdDiv);
+}
 
 ////////////////////////////////////////////
 //////////////////////////////////////////////
@@ -84,59 +82,93 @@ const theTetrominoes = [
   iTetromino,
 ];
 
-let currentPosition = 4
-let currentRotation = 0
+let currentPosition = 4;
+let currentRotation = 0;
 
-let random = Math.floor(Math.random()*theTetrominoes.length)
-let current = theTetrominoes[random][currentRotation]
-
-
-
-
-
+let random = Math.floor(Math.random() * theTetrominoes.length);
+let current = theTetrominoes[random][currentRotation];
 
 //draw tetromino
-function draw () {
-    current.forEach(index => {
-        squares[currentPosition +index].classList.add('tetromino')
-    });
+function draw() {
+  current.forEach((index) => {
+    squares[currentPosition + index].classList.add("tetromino");
+  });
 }
 
 // undraw
 function undraw() {
-    current.forEach(index => {
-      squares[currentPosition + index].classList.remove('tetromino')
-    })
+  current.forEach((index) => {
+    squares[currentPosition + index].classList.remove("tetromino");
+  });
+}
+
+timerID = setInterval(moveDown, 1000);
+
+//move
+function moveDown() {
+  undraw();
+  currentPosition += width;
+  draw();
+  freeze();
+}
+
+//hit
+function freeze() {
+  if (
+    current.some((index) =>
+      squares[currentPosition + index + width].classList.contains("taken")
+    )
+  ) {
+    current.forEach((index) =>
+      squares[currentPosition + index].classList.add("taken")
+    );
+    //start new tetromino
+    random = Math.floor(Math.random() * theTetrominoes.length);
+    current = theTetrominoes[random][currentRotation];
+    currentPosition = 4;
+    draw();
   }
+}
 
-  timerID = setInterval(moveDown, 1000)
-
-  //move
-  function moveDown() {
-    undraw()
-    currentPosition += width
-    draw()
-    freeze() 
+//only move functions
+function moveLeft() {
+  undraw()
+  const isAtLeftEdge = current.some(index => (currentPosition + index) % width === 0)
+  if(!isAtLeftEdge) currentPosition -=1
+  if(current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+    currentPosition +=1
   }
+  draw()
+}
 
-  //hit 
-  function freeze () {
-    if(current.some(index => squares[currentPosition + index + width].classList.contains('taken'))) {
-        current.forEach(index => squares[currentPosition + index].classList.add('taken'))
-        //start new tetromino
-      random = Math.floor(Math.random() * theTetrominoes.length)
-      current = theTetrominoes[random][currentRotation]
-      currentPosition = 4
-      draw()
-    }
-
+function moveRight() {
+  undraw()
+  const isAtRightEdge = current.some(index => (currentPosition + index) % width === width -1)
+  if(!isAtRightEdge) currentPosition +=1
+  if(current.some(index => squares[currentPosition + index].classList.contains('taken'))) {
+    currentPosition -=1
   }
+  draw()
+}
 
-   
+function moveDown() {
+  undraw();
+  currentPosition += width;
+  draw();
+  freeze();
+}
 
- 
-
-    
-
-
-
+//keyup()
+function control(e) {
+  if (e.key === "ArrowLeft") {
+    moveLeft();
+  } else if (e.key === "ArrowUp") {
+    // rotate()
+    console.log("rotate");
+  } else if (e.key === "ArrowRight") {
+    moveRight();
+  } else if (e.key === "ArrowDown") {
+    moveDown();
+  }
+}
+document.addEventListener("keyup", control);
